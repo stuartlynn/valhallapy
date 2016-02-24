@@ -1,6 +1,5 @@
 import requests
 import json
-from shapely.geometry import asLineString
 
 class ValhallaRoute:
     def __init__(self,route_object):
@@ -18,12 +17,12 @@ class ValhallaRoute:
     def shape(self):
         return self.decode(self.ro['trip']['legs'][0]['shape'])
 
-    def wkb(self):
-        return asLineString(self.shape()).wkb
-
-    def wkt(self):
-        return asLineString(self.shape()).wkt
-        
+    # def wkb(self):
+    #     return asLineString(self.shape()).wkb
+    #
+    # def wkt(self):
+    #     return asLineString(self.shape()).wkt
+    #     
     def asGeoJSON(self, properties={}):
         return {'type': 'Feature','properties': properties, 'geometry': { 'type': 'LineString', 'coordinates': self.shape()}}
 
