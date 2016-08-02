@@ -1,5 +1,5 @@
 import requests
-import json
+import simplejson as json
 
 class ValhallaRoute:
     def __init__(self,route_object):
@@ -17,12 +17,16 @@ class ValhallaRoute:
     def shape(self):
         return self.decode(self.ro['trip']['legs'][0]['shape'])
 
-    # def wkb(self):
-    #     return asLineString(self.shape()).wkb
-    #
+    #def wkb(self):
+    #    return asLineString(self.shape()).wkb
+
     # def wkt(self):
     #     return asLineString(self.shape()).wkt
-    #     
+    #
+
+    def asCSV(self,properties=[]):
+        return [self.shape()] +properties
+
     def asGeoJSON(self, properties={}):
         return {'type': 'Feature','properties': properties, 'geometry': { 'type': 'LineString', 'coordinates': self.shape()}}
 
@@ -103,7 +107,21 @@ class Valhalla:
     def route(self,start,end, costing='auto'):
         points = {"locations": [start,end]}
         url = self.host+'/route?json='+json.dumps(points)+ "&costing="+costing+"&api_key="+self.api_key
-        print url
-
+        #print url
+        #print ' is thisupdating!!!!! '
         resp = requests.get(url)
-        return ValhallaRoute(json.loads(resp.text))
+        text=  resp.text
+        if text==u'No path could be found for input':
+            return None
+
+        #print text.strip("'<>() ").replace('\'', '\"')
+        try:
+            result = json.loads(text.strip("'<>() ").replace('\'', '\"'))
+            return ValhallaRoute(result)
+        except Exception:
+            return None
+            #from IPython import embed
+            #embed()
+
+        #print
+
